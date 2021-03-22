@@ -36,8 +36,8 @@ class FilmRecommendation:
             for j in range(number_of_films):  # координата
                 n += (PR[0][j] - PR[i][j]) ** 2
             dis[i] = n ** 0.5
-        min = 10000;
-        num = 0;
+        min = 10000
+        num = 0
         for i in range(1, len(dis)):
             if min > dis[i]:
                 min = dis[i]

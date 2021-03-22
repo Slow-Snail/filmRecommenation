@@ -43,7 +43,7 @@ while 1 == 1:
     names.append(K)
     # Защита от дураков (Console only)
     K = input()
-    if(K.lower() != K.upper()):
+    if K.lower() != K.upper():
         print('ERROR! Pls, put a rating!')
         K = input()  # Дважды не повторяю
 
