@@ -7,8 +7,8 @@ class FilmRecommendation:
         self.ratings = ratings
 
     def createPR(self, cin, score):
-        PR = np.zeros((611, len(cin)))  # 610 == кол-во людей ✔
-        # заполнение массива 2.5, мб заполнять средним балом по фильму
+        PR = np.full((611, len(cin)), 2.5)  # 610 == кол-во людей ✔
+        # мб заполнять средним балом по фильму
         for i in range(len(PR)):
             for j in range(len(PR[i])):
                 PR[i][j] = 2.5
@@ -51,13 +51,13 @@ class FilmRecommendation:
         n = -1
         for i in self.ratings['userId']:
             n += 1  # n = номер строки
-            if num == i and self.ratings['rating'][n] > 4:
+            if num == i and self.ratings['rating'][n] > 4:  # если выбранный человек смотрел этот фильм и поставил ему оценку > 4
                 b = 1
                 for j in cin:
-                    if str(self.ratings['movieId'][n]) == j:
+                    if str(self.ratings['movieId'][n]) == str(j):   # но пользователь не видел этот фильм
                         b = 0
                 if b:
-                    aspirant.append(self.ratings['movieId'][n])
+                    aspirant.append(self.ratings['movieId'][n])     # этот фильм будет рекомендован пользователю
         return aspirant
 
     def make_predict(self, cin, score):

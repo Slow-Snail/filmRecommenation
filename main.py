@@ -28,100 +28,36 @@ cin = []
 score = []
 names = []
 
-while 1 == 1:
+while True:
     N = input()
     if N == '-1':
         break
     var = nameWork.search(N.lower(), names)
     var = sorted(var, key=lambda x: Pop[Nid[x]], reverse=True)
     print(var)
-    K = int(input())
-    if K == -1:
+    k = int(input())
+    if k == -1:
         continue
-    K = var[K-1].lower()
-    cin.append(Nid[K])  # ✔
-    names.append(K)
+    k = var[k - 1].lower()
+    cin.append(Nid[k])  # ✔
+    names.append(k)
     # Защита от дураков (Console only)
-    K = input()
-    if K.lower() != K.upper():
+    k = input()
+    if k.lower() != k.upper():
         print('ERROR! Pls, put a rating!')
-        K = input()  # Дважды не повторяю
+        k = input()  # Дважды не повторяю
 
-    score.append(int(K))
+    score.append(int(k))
     var.sort()
-
-#  [59784, 87222, 149406, 76093, 112175]
-#  [5, 5, 4, 5, 4]
 
 GC = nameWork.favourite(names)    # map жанр => колв-во
 
-print(names)    # ✔
-print(cin)      # ✔
-print(score)    # ✔
+print(names)    # ✔ # фильмы, которые выбрал пользователь
+print(cin)      # ✔ # массив индексов просмотренных пользователем фильмов
+print(score)    # ✔ # оценки пользователя
 print(filmRecommendation.make_predict(cin, score))  # ✔
 id = sorted(filmRecommendation.make_predict(cin, score), key=lambda x:nameWork.sort(x, GC), reverse=True)
 ans = []
 for i in id:
     ans.append(movies['title'][Mid[i]].lower())
-print(ans)
-# PR = np.zeros((611, len(cin)))  # 610 == кол-во людей ✔
-# dis = np.zeros(611)    # ✔
-# aspirant = []
-#
-#
-# def inp():
-#
-#     # заполнение массива 2.5, мб заполнять средним балом по фильму
-#     for i in range(len(PR)):
-#         for j in range(len(PR[i])):
-#             PR[i][j] = 2.5
-#
-#     PR[0] = score #PR[0] = оценки пользователя
-#
-#
-#
-#     for i in range(len(cin)):
-#         num = 0 #num - кол во срабатываний цикла j // номер строки с фильмом j
-#                 #i - номер фильма пользователя (первый фильм который выбрал ползователь, второй...)
-#
-#         for j in ratings['movieId']: #j номер фильма    ✔
-#
-#             if str(j) == cin[i]: #если фильм j это фильм пользователя
-#
-#
-#                 PR[ratings['userId'][num]][i] = str(ratings['rating'][num]) #записываем в пользователя оценившего фильм j его оценку под номером, равным номеру фильма пользователя (i) ✔
-#             num +=1
-#
-#      #pr[[user id] [score1,score2,score3...]]
-#
-# def count():
-#     for i in range(len(dis)): #номер человека
-#         n = 0
-#         for j in range(len(cin)):    #координата
-#             n += (PR[0][j] - PR[i][j]) ** 2
-#         dis[i] = n ** 0.5
-#     min = 10000;
-#     num = 0;
-#     for i in range(1, len(dis)):
-#         if min > dis[i]:
-#             min = dis[i]
-#             num = i
-#     return (num)
-#     #dis [nothing, dis to 1, to 2, to 3]
-#     #dis[] = ((PR[0][] - PR[][]) ** 2 + same)  ** 0,5
-#
-# def selection (num):
-#     n = -1
-#     for i in ratings['userId']:
-#         n += 1
-#         if num == i and ratings['rating'][n] > 4:
-#             aspirant.append(ratings['movieId'][n])
-#
-# def sort():
-#     pass
-#
-#
-#
-# inp()   # ✔
-# selection(count())  # ✔
-# sort()
+print(ans)  # названия рекомендовонных фильмов

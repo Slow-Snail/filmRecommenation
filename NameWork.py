@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 class NameWork:
     def __init__(self, ratings, movies, Mid, Nid):
         self.ratings = ratings
@@ -8,16 +9,9 @@ class NameWork:
         self.Mid = Mid
         self.Nid = Nid
 
-
-
-
     def search(self, string, alrd):
-        names = []
         pure = []
-
-        for i in self.movies['title']:
-            names.append(i.lower())
-
+        names = list(map(lambda x: x.lower(), self.movies['title']))
         for i in range(len(string)):           # i = номер символа названия
             for j in range(len(names)):        # j = номер названия
                 if len(names[j]) >= len(string) and names[j][i] == string[i]:    # Если i-ная буква j-йного Названия = i-ной букве искомого названия
@@ -29,14 +23,7 @@ class NameWork:
 
             pure.clear()
 
-        ans = []
-        for i in names:
-            T = 0
-            for j in alrd:
-                if i == j:
-                    T = 1
-            if T == 0:
-                ans.append(i)
+        ans = [x for x in names if not (x in alrd)]
         return ans
 
     def favourite(self, films):
