@@ -20,7 +20,7 @@ for i in ratings['movieId']:
 #string = {input().lower()}
 
 nameWork = NameWork.NameWork(ratings, movies, Mid, Nid)
-filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings)
+filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings, Mid)
 # print(filmRecommendation.make_predict(cin, score)) # Названия подходящих фильмов
 # print(nameWork.search(string.lower())) # Названия подходящие под искомое
 

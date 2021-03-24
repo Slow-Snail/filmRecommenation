@@ -3,8 +3,9 @@ import pandas as pd
 
 
 class FilmRecommendation:
-    def __init__(self, ratings):
+    def __init__(self, ratings, Mid):
         self.ratings = ratings
+        self.Mid = Mid
 
     def createPR(self, cin, score):
         PR = np.full((611, len(cin)), 2.5)  # 610 == кол-во людей ✔
@@ -30,40 +31,52 @@ class FilmRecommendation:
         return PR
 
     def count_dist(self, PR, number_of_films):
-        dis = np.zeros(611)  # ✔
+        dis = np.zeros((611, 2))
         for i in range(len(dis)):  # номер человека
             n = 0
             for j in range(number_of_films):  # координата
                 n += (PR[0][j] - PR[i][j]) ** 2
-            dis[i] = n ** 0.5
-        min = 10000
-        num = 0
-        for i in range(1, len(dis)):
-            if min > dis[i]:
-                min = dis[i]
-                num = i
-        return num
-        # dis [0(dis U2U), dis to 1, to 2, to 3]
-        # dis[] = ((PR[0][] - PR[][]) ** 2 + same)  ** 0,5
+            dis[i][0] = n ** 0.5
+            dis[i][1] = i
+
+        dis = sorted(dis, key=lambda x: x[0])
+        return dis
+
+        # dis [0(dis U2U), dis to 1, to 2, to 3][0,1,2,3]
+        # dis[][0] = ((PR[0][] - PR[][]) ** 2 + same)  ** 0,5
 
     def get_liked_film(self, num, cin):
-        aspirant = []
         n = -1
+        sco = np.zeros((len(self.ratings['movieId']), 2))  # массив с сумарными оценками
+        for i in range(len(sco)):
+            sco[i][1] = i
+        Qua = {self.ratings['movieId'][i]: 0 for i in range(len(self.ratings['movieId']))}    # кол-во оценок у фильма
+
         for i in self.ratings['userId']:
-            n += 1  # n = номер строки
-            if num == i and self.ratings['rating'][n] > 4:  # если выбранный человек смотрел этот фильм и поставил ему оценку > 4
-                b = 1
-                for j in cin:
-                    if str(self.ratings['movieId'][n]) == str(j):   # но пользователь не видел этот фильм
-                        b = 0
-                if b:
-                    aspirant.append(self.ratings['movieId'][n])     # этот фильм будет рекомендован пользователю
-        return aspirant
+            n += 1  # n = номер строки в ratings
+            if i in num:
+                sco[self.Mid[self.ratings['movieId'][n]]][0] += self.ratings['rating'][n]
+                Qua[self.ratings['movieId'][n]] += 1
+
+        for i in sco:
+            if(Qua[self.ratings['movieId'][i[1]]]) != 0:
+                i[0] = i[0] / Qua[self.ratings['movieId'][i[1]]]
+        sco = sorted(sco, key=lambda x: x[0], reverse=True)
+        ans = []
+        for i in range(100):
+            ans.append(self.ratings['movieId'][sco[i][1]])
+        return ans
 
     def make_predict(self, cin, score):
         PR = self.createPR(cin, score)  # PR[[user id] [score1,score2,score3...]]
-        num = self.count_dist(PR, len(cin))  # num = номер ближайшего человека
-        # ans = []
+        dis = self.count_dist(PR, len(cin))  # num = номер ближайшего человека
+
+        n = 5                               # n - кол-во ближайших людей, оценки которых мы учитываем
+
+        num = []
+        for i in range(1, min(n, len(dis))):
+            num.append(dis[i][1])
+
         return self.get_liked_film(num, cin)  # возвращает массив номеров фильмов
 
 
