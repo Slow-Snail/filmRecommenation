@@ -20,7 +20,7 @@ for i in ratings['movieId']:
 #string = {input().lower()}
 
 nameWork = NameWork.NameWork(ratings, movies, Mid, Nid)
-filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings, Mid)
+filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings)
 # print(filmRecommendation.make_predict(cin, score)) # Названия подходящих фильмов
 # print(nameWork.search(string.lower())) # Названия подходящие под искомое
 
@@ -55,9 +55,10 @@ GC = nameWork.favourite(names)    # map жанр => колв-во
 print(names)    # ✔ # фильмы, которые выбрал пользователь
 print(cin)      # ✔ # массив индексов просмотренных пользователем фильмов
 print(score)    # ✔ # оценки пользователя
-print(filmRecommendation.make_predict(cin, score))  # ✔
+# id = (filmRecommendation.make_predict(cin, score))  # ✔
 id = sorted(filmRecommendation.make_predict(cin, score), key=lambda x:nameWork.sort(x, GC), reverse=True)
 ans = []
+print(id)
 for i in id:
     ans.append(movies['title'][Mid[i]].lower())
 print(ans)  # названия рекомендовонных фильмов

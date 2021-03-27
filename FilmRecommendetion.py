@@ -3,9 +3,8 @@ import pandas as pd
 
 
 class FilmRecommendation:
-    def __init__(self, ratings, Mid):
+    def __init__(self, ratings):
         self.ratings = ratings
-        self.Mid = Mid
 
     def createPR(self, cin, score):
         PR = np.full((611, len(cin)), 2.5)  # 610 == кол-во людей ✔
@@ -46,25 +45,26 @@ class FilmRecommendation:
         # dis[][0] = ((PR[0][] - PR[][]) ** 2 + same)  ** 0,5
 
     def get_liked_film(self, num, cin):
-        n = -1
-        sco = np.zeros((len(self.ratings['movieId']), 2))  # массив с сумарными оценками
+        n = -1  # n = номер строки в ratings
+        sco = np.zeros((193609, 2)) # массив с сумарными оценками # наибольший MovieId
         for i in range(len(sco)):
             sco[i][1] = i
-        Qua = {self.ratings['movieId'][i]: 0 for i in range(len(self.ratings['movieId']))}    # кол-во оценок у фильма
+        qua = np.zeros(193609)   # кол-во оценок у фильма
 
         for i in self.ratings['userId']:
             n += 1  # n = номер строки в ratings
-            if i in num:
-                sco[self.Mid[self.ratings['movieId'][n]]][0] += self.ratings['rating'][n]
-                Qua[self.ratings['movieId'][n]] += 1
+            if i in num:    # если человек, оценивший фильм, один из ближайших
+                sco[self.ratings['movieId'][n]][0] += int(self.ratings['rating'][n])    # добавляем его оценку
+                qua[self.ratings['movieId'][n]] += 1    # и увеличиваем количество оценок у фильма на 1
 
-        for i in sco:
-            if(Qua[self.ratings['movieId'][i[1]]]) != 0:
-                i[0] = i[0] / Qua[self.ratings['movieId'][i[1]]]
-        sco = sorted(sco, key=lambda x: x[0], reverse=True)
+        for i in range(len(sco)):   # идём по оценкам
+            if(qua[i]) != 0:    # если фильм смотрел кто-то из ближайших людей
+                sco[i][0] = sco[i][0] / qua[i]  # считаем среднюю оценк фильма
+        sco = sorted(sco, key=lambda x: x[0], reverse=True)  # сортируем фильмы по средней оценке
         ans = []
-        for i in range(100):
-            ans.append(self.ratings['movieId'][sco[i][1]])
+        for i in range(100):    # берём 100 фильмов с наивысшей оценкой
+            if not(sco[i][1] in cin):   # если пользователь не смотрел фильм
+                ans.append(sco[i][1])   # добовляем его в рекомендации
         return ans
 
     def make_predict(self, cin, score):
