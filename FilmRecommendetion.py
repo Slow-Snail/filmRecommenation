@@ -6,12 +6,26 @@ class FilmRecommendation:
     def __init__(self, ratings):
         self.ratings = ratings
 
-    def createPR(self, cin, score):
-        PR = np.full((611, len(cin)), 2.5)  # 610 == кол-во людей ✔
-        # мб заполнять средним балом по фильму
-        for i in range(len(PR)):
-            for j in range(len(PR[i])):
-                PR[i][j] = 2.5
+    def createPR(self, cin):
+        Rai = {i: 0 for i in cin}   # Суммарная оценка фильмов пользователя
+        Qua = {i: 0 for i in cin}   # Кол-во оценок
+        n = -1
+        for i in self.ratings['movieId']:   # идём по ratings movieId
+            n += 1  # номер строки
+            if i in cin:    # Если это ^ фильм пользователя
+                Qua[i] += 1     # Увеличиваем кол-во оценок фильма на 1
+                Rai[i] += self.ratings['rating'][n]   # прибавляем оценку
+        v = []  # массив средних оценок
+        for i in cin:   # идём по фильмам пользователя
+            v.append(Rai[i] / Qua[i])   # добавляем среднюю оценку в PR
+        PR = np.full((611, len(cin)), v)  # создаём PR
+        return PR
+
+
+
+    def fillPR(self, cin, score):
+        # PR = np.full((611, len(cin)), 2.5)  # 610 == кол-во людей ✔
+        PR = self.createPR(cin)
 
         PR[0] = score  # PR[0] = оценки пользователя
 
@@ -68,15 +82,12 @@ class FilmRecommendation:
         return ans
 
     def make_predict(self, cin, score):
-        PR = self.createPR(cin, score)  # PR[[user id] [score1,score2,score3...]]
-        dis = self.count_dist(PR, len(cin))  # num = номер ближайшего человека
+        PR = self.fillPR(cin, score)  # PR[[user id] [score1,score2,score3...]]
+        dis = self.count_dist(PR, len(cin))  # dis = [0]-расстояние до человека [1]-id (отсортирован по ближайшим)
 
         n = 5                               # n - кол-во ближайших людей, оценки которых мы учитываем
 
-        num = []
+        num = []    # id ближайших n человек
         for i in range(1, min(n, len(dis))):
             num.append(dis[i][1])
-
         return self.get_liked_film(num, cin)  # возвращает массив номеров фильмов
-
-
