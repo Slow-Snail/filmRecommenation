@@ -3,11 +3,12 @@ import pandas as pd
 
 
 class NameWork:
-    def __init__(self, ratings, movies, Mid, Nid):
+    def __init__(self, ratings, movies, Mid, Nid, Pop):
         self.ratings = ratings
         self.movies = movies
         self.Mid = Mid
         self.Nid = Nid
+        self.Pop = Pop
 
     def search(self, string, alrd):
         pure = []
@@ -36,7 +37,8 @@ class NameWork:
         genres = {"Action", "Adventure", "Animation", "Children", "Comedy", "Crime", "Documentary", "Drama", "Fantasy", "Film-Noir", "Horror", "Musical", "Mystery", "Romance", "Sci-Fi", "Thriller", "War", "Western", "(no genres listed)", "IMAX"}
         count = {a: 0 for a in genres}
         for i in allg:
-            count[i] += 1
+            if(i != "IMAX" and i != "(no genres listed)"):
+                count[i] += 1
         return count    # map жанр => колв-во
 
     def sort(self, id, count):
@@ -45,3 +47,10 @@ class NameWork:
         for i in k:
             ans += count[i]
         return ans
+
+    def psort(self, inp):
+        id = []
+        for i in range(25):
+            id.append(inp[i])
+        id = sorted(id, key=lambda x: self.Pop[x], reverse=True)
+        return id

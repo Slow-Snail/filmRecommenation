@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import random
 
 class FilmRecommendation:
     def __init__(self, ratings):
@@ -20,7 +20,6 @@ class FilmRecommendation:
             v.append(Rai[i] / Qua[i])   # добавляем среднюю оценку в PR
         PR = np.full((611, len(cin)), v)  # создаём PR
         return PR
-
 
 
     def fillPR(self, cin, score):
@@ -45,14 +44,18 @@ class FilmRecommendation:
 
     def count_dist(self, PR, number_of_films):
         dis = np.zeros((611, 2))
-        for i in range(len(dis)):  # номер человека
+        for i in range(len(dis)):
             n = 0
-            for j in range(number_of_films):  # координата
+            for j in range(number_of_films):
                 n += (PR[0][j] - PR[i][j]) ** 2
-            dis[i][0] = n ** 0.5
-            dis[i][1] = i
+            dis[i][0] = n ** 0.5    # расстояние до
+            dis[i][1] = i   # номер человека
 
         dis = sorted(dis, key=lambda x: x[0])
+
+        # dis = sorted(dis, key=lambda x: random.uniform(1, 100))
+        # for i in range(len(dis)):
+        #    print(dis[i][0], dis[i][1])
         return dis
 
         # dis [0(dis U2U), dis to 1, to 2, to 3][0,1,2,3]
@@ -60,34 +63,40 @@ class FilmRecommendation:
 
     def get_liked_film(self, num, cin):
         n = -1  # n = номер строки в ratings
-        sco = np.zeros((193609, 2)) # массив с сумарными оценками # наибольший MovieId
+        sco = np.zeros((193609+1, 2))   # sco[i][0] = сумарная оценка фильма с номером i; sco[i][1] = номер фильма
         for i in range(len(sco)):
             sco[i][1] = i
-        qua = np.zeros(193609)   # кол-во оценок у фильма
+        qua = np.zeros(193609+1)   # кол-во оценок у фильма
 
-        for i in self.ratings['userId']:
-            n += 1  # n = номер строки в ratings
+        for i in self.ratings['userId']:    # идём по строкам ratings;
+            n += 1  # n = номер строки
+
             if i in num:    # если человек, оценивший фильм, один из ближайших
-                sco[self.ratings['movieId'][n]][0] += int(self.ratings['rating'][n])    # добавляем его оценку
+                sco[self.ratings['movieId'][n]][0] += int(self.ratings['rating'][n])    # добавляем его оценку к фильму который он посмотрел
                 qua[self.ratings['movieId'][n]] += 1    # и увеличиваем количество оценок у фильма на 1
 
         for i in range(len(sco)):   # идём по оценкам
             if(qua[i]) != 0:    # если фильм смотрел кто-то из ближайших людей
-                sco[i][0] = sco[i][0] / qua[i]  # считаем среднюю оценк фильма
+                sco[i][0] = sco[i][0] / qua[i]  # считаем среднюю оценку фильма         ! sco[i][] != int??? !
         sco = sorted(sco, key=lambda x: x[0], reverse=True)  # сортируем фильмы по средней оценке
         ans = []
         for i in range(100):    # берём 100 фильмов с наивысшей оценкой
-            if not(sco[i][1] in cin):   # если пользователь не смотрел фильм
+            if not(sco[i][1] in cin) and int(qua[int(sco[i][1])]) != 0:   # если пользователь не смотрел фильм
                 ans.append(sco[i][1])   # добовляем его в рекомендации
         return ans
 
-    def make_predict(self, cin, score):
+    def make_predict(self, cin, score, tst):
         PR = self.fillPR(cin, score)  # PR[[user id] [score1,score2,score3...]]
         dis = self.count_dist(PR, len(cin))  # dis = [0]-расстояние до человека [1]-id (отсортирован по ближайшим)
 
-        n = 5                               # n - кол-во ближайших людей, оценки которых мы учитываем
+        n = 4+1                               # n - кол-во ближайших людей, оценки которых мы учитываем (-1)
 
         num = []    # id ближайших n человек
-        for i in range(1, min(n, len(dis))):
-            num.append(dis[i][1])
+        if tst == -1:
+            for i in range(1, min(n, len(dis))):
+                num.append(dis[i][1])
+        else:
+            for i in range(2, min(n+1, len(dis))):
+                num.append(dis[i][1])
+        print(num)
         return self.get_liked_film(num, cin)  # возвращает массив номеров фильмов
