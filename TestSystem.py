@@ -52,7 +52,7 @@ class TestSystem:
 
             GC = self.nameWork.favourite(names)
             # print(self.filmRecommendation.make_predict(cin, score, 1))
-            res = sorted(self.filmRecommendation.make_predict(cin, score, k+1), key=lambda x: self.nameWork.sort(x, GC),
+            res = sorted(self.filmRecommendation.make_predict(cin, score, 1), key=lambda x: self.nameWork.sort(x, GC),
                         reverse=True)  # аналогично с ConsInt // res = id рекомендованных фильмов
             # res = self.filmRecommendation.make_predict(cin, score, 1)
 
