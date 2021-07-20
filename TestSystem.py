@@ -8,11 +8,12 @@ movies = pd.read_csv("movies.csv")
 ratings = pd.read_csv("ratings.csv")
 
 class TestSystem:
-    def __init__(self,  Mid, Nid, Pop):
+    def __init__(self,  Mid, Nid, Pop, Sco):
         self.Mid = Mid
-        self.nameWork = NameWork.NameWork(ratings, movies, Mid, Nid, Pop)
+        self.nameWork = NameWork.NameWork(ratings, movies, Mid, Nid, Pop, Sco)
         self.filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings)
         self.Pop = Pop
+        self.Sco = Sco
 
     def test(self):
         agr = 0  # процент гарантированно верно подобранных фильмов
