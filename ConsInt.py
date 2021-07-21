@@ -8,11 +8,12 @@ ratings = pd.read_csv("ratings.csv")
 
 
 class ConsInt:
-    def __init__(self, Mid, Nid, Pop):
+    def __init__(self, Mid, Nid, Pop, Sco):
         self.Mid = Mid
         self.Nid = Nid
         self.Pop = Pop
-        self.nameWork = NameWork.NameWork(ratings, movies, Mid, Nid, Pop)
+        self.Sco = Sco
+        self.nameWork = NameWork.NameWork(ratings, movies, Mid, Nid, Pop, Sco)
         self.filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings)
 
     def control(self):
