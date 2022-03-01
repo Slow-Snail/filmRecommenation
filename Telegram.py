@@ -9,7 +9,7 @@ import Data
 
 movies = pd.read_csv("movies.csv")
 ratings = pd.read_csv("ratings.csv")
-bot = tb.TeleBot('')  # Токен
+bot = tb.TeleBot('1864967382:AAELxhQjmXfS9yLVDhYglBqTWDYTVh8TkNk')  # Токен
 
 Mid = {movies['movieId'][i]: i for i in range(len(movies['movieId']))}  #  создание ключей по типу "ключ - movieId;; вывод - реальный номер (по счёту)"
 Nid = {movies['title'][i].lower(): movies['movieId'][i] for i in range(len(movies['movieId']))} #  ключ - название. вывод - id фильма
@@ -27,6 +27,7 @@ for i in movies['movieId']:
 nameWork = NameWork.NameWork(ratings, movies, Mid, Nid, Pop, Sco)
 filmRecommendation = FilmRecommendetion.FilmRecommendation(ratings)
 
+
 STC = {}
 DMP = {}
 
@@ -35,16 +36,12 @@ DMP = {}
 def start(message):
 
     if not (message.from_user.id in DMP):
-        DMP[message.from_user.id] = Data
-        DMP[message.from_user.id].alrd = []
-        DMP[message.from_user.id].score = []
-        DMP[message.from_user.id].cin = []
+        data = Data.Data([], [], [], [], [])
+        DMP[message.from_user.id] = data
 
     if not (message.from_user.id in STC) or STC[message.from_user.id] == 0:
-        DMP[message.from_user.id] = Data
-        DMP[message.from_user.id].alrd = []
-        DMP[message.from_user.id].score = []
-        DMP[message.from_user.id].cin = []
+        data = Data.Data([], [], [], [], [])
+        DMP[message.from_user.id] = data
         branch_kb = kb()
         branch_kb.add(bt(text='Да', callback_data='yes'))
         branch_kb.add(bt(text='Нет', callback_data='no'))
@@ -68,23 +65,22 @@ def start(message):
             bot.send_message(message.from_user.id, 'Ошибка, попробуй ещё раз')
 
     elif STC[message.from_user.id] == 2:
-        v = nameWork.search(message.text.lower(), DMP[message.from_user.id].alrd)
-        v = sorted(v, key=lambda x: Pop[Nid[x]], reverse=True)
-        DMP[message.from_user.id].v = v
-        if len(v) == 0:
+        DMP[message.from_user.id].v = nameWork.search(message.text.lower(), DMP[message.from_user.id].alrd)
+        DMP[message.from_user.id].v = sorted(DMP[message.from_user.id].v, key=lambda x: Pop[Nid[x]], reverse=True)
+        if len(DMP[message.from_user.id].v) == 0:
             bot.send_message(message.from_user.id, 'Ничего не найдено! Попробуй ещё раз или пропусти этот фильм, возможно я просто его не знаю')
         else:
-            bot.send_message(message.from_user.id, 'Возможно, вы имели ввиду:')
-            for i in range(min(5, len(v))):
-                bot.send_message(message.from_user.id, str(i+1)+': '+v[i])
-            bot.send_message(message.from_user.id, 'Если среди предложенных фильмов нет того что ты искал' +
+            bot.send_message(message.from_user.id, 'Возможно, ты имел ввиду:')
+            for i in range(min(5, len(DMP[message.from_user.id].v))):
+                bot.send_message(message.from_user.id, str(i+1)+': '+DMP[message.from_user.id].v[i])
+            bot.send_message(message.from_user.id, 'Укажи номер фильма, который ты имел ввиду. Если его нет среди предложенных фильмов' +
                                                    ' - напиши "Нет" или "No"')
             bot.register_next_step_handler(message, choice)
 
 
 def choice(message):
     if message.text.lower() == 'нет' or message.text.lower() == 'no':
-        bot.send_message(message.from_user.id, 'Напиши несколько первых букв названия фильма, что бы я его нашёл')
+        bot.send_message(message.from_user.id, 'Напиши несколько первых букв названия фильма, чтобы я его нашёл')
     elif 2 > len(message.text) and check(message.text) and 0 < int(message.text) <= min(len(DMP[message.from_user.id].v), 5):
         DMP[message.from_user.id].alrd.append(DMP[message.from_user.id].v[int(message.text)-1].lower())
         DMP[message.from_user.id].cin.append(Nid[DMP[message.from_user.id].v[int(message.text) - 1].lower()])
@@ -94,6 +90,9 @@ def choice(message):
     else:
         bot.send_message(message.from_user.id, 'Номер указан неверно, попробуйте ещё раз')
         bot.register_next_step_handler(message, choice)
+        print("L")
+        print(DMP[message.from_user.id].v)
+        print("LE")
 
 
 def scr(message):
@@ -106,11 +105,11 @@ def scr(message):
         last_kb.add(bt(text='Это всё', callback_data='end'))
         if STC[message.from_user.id] == 2:
             bot.send_message(message.from_user.id,
-                         'Введи название следующего фильма или используй кнопку чтобы продолжить', reply_markup=last_kb)
+                         'Введи название следующего фильма или используй кнопку, чтобы продолжить', reply_markup=last_kb)
         else:
             DMP[message.from_user.id].cin.append(Nid[DMP[message.from_user.id].alrd[len(DMP[message.from_user.id].alrd)-1].lower()])
             bot.send_message(message.from_user.id,
-                        'Введи номер следующего фильма или используй кнопку чтобы продолжить', reply_markup=last_kb)
+                        'Введи номер следующего фильма или используй кнопку, чтобы продолжить', reply_markup=last_kb)
 
 
 def check(s):
@@ -123,16 +122,13 @@ def check(s):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
     if not (call.message.chat.id in DMP):
-        DMP[call.message.chat.id] = Data
-        DMP[call.message.chat.id].alrd = []
-        DMP[call.message.chat.id].score = []
-        DMP[call.message.chat.id].cin = []
+        data = Data.Data([], [], [], [], [])
+        DMP[call.message.chat.id] = data
 
     if call.data == 'yes':
-        bot.send_message(call.message.chat.id, 'Напиши несколько первых букв названия фильма, что бы я его нашёл')
-        DMP[call.message.chat.id].alrd = []
-        DMP[call.message.chat.id].score = []
-        DMP[call.message.chat.id].cin = []
+        bot.send_message(call.message.chat.id, 'Напиши несколько первых букв названия фильма, чтобы я его нашёл')
+        data = Data.Data([], [], [], [], [])
+        DMP[call.message.chat.id] = data
         STC[call.message.chat.id] = 2
 
     if call.data == 'no':
@@ -166,15 +162,14 @@ def callback_worker(call):
         bot.send_message(call.message.chat.id, 'Вот список популярных фильмов этого жанра: \n\nА1: '+vv[0]+'\nА2: '+vv[1]+'\nА3: '+vv[2]+'\nА4: '+vv[3]+'\nА5: '+vv[4]+'\nА6: '+vv[5]+'\nА7: '+vv[6]+'\nА8: '+vv[7]+'\nА9: '+vv[8]+'\nА10: '+vv[9]+'\nА11: '+vv[10]+'\nА12: '+vv[11]+'\nА13: '+vv[12]+'\nА14: '+vv[13]+'\nА15: '+vv[14]
                          + '\n\nА это список высокооцененных фильмов:\n\nB1: '+vv[15]+'\nB2: '+vv[16]+'\nB3: '+vv[17]+'\nB4: '+vv[18]+'\nB5: '+vv[19]+'\nB6: '+vv[20]+'\nB7: '+vv[21]+'\nB8: '+vv[22]+'\nB9: '+vv[23]+'\nB10: '+vv[24]+'\nB11: '+vv[25]+'\nB12: '+vv[26]+'\nB13: '+vv[27]+'\nB14: '+vv[28]+'\nB15: '+vv[29]
                          + '\n\nЕсли ты смотрел какой-то из этих фильмов - напиши мне его номер \n(Примеры номеров:' +
-                         '"A3"; "B11")\nЕсли ты уже выбрал фильмы - напиши "Это всё"')
+                         '"A3"; "B11")\nЕсли ты уже выбрал фильмы - используй кнопку "Это всё"')
         STC[call.message.chat.id] = 1
-        DMP[call.message.chat.id].alrd = []
-        DMP[call.message.chat.id].score = []
-        DMP[call.message.chat.id].cin = []
+        data = Data.Data([], [], [], [], [])
+        DMP[call.message.chat.id] = data
 
     if call.data == 'end':
         if len(DMP[call.message.chat.id].alrd) > 0:
-            bot.send_message(call.message.chat.id, 'Вам должны понравиться эти фильмы:')
+            bot.send_message(call.message.chat.id, 'Тебе должны понравиться эти фильмы:')
             GC = nameWork.favourite(DMP[call.message.chat.id].alrd)
             id = sorted(filmRecommendation.make_predict(DMP[call.message.chat.id].cin,
                                                         DMP[call.message.chat.id].score, -1),
@@ -183,6 +178,9 @@ def callback_worker(call):
             print(DMP[call.message.chat.id].cin)  # массив индексов просмотренных пользователем фильмов
             print(DMP[call.message.chat.id].score)  # оценки пользователя
             print(id)
+            print("ID")
+            print(call.message.chat.id)
+            print("end")
             for i in range(min(10, len(id))):
                 bot.send_message(call.message.chat.id, movies['title'][Mid[id[i]]])
         STC[call.message.chat.id] = 0

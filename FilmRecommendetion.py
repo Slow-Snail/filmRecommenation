@@ -73,8 +73,8 @@ class FilmRecommendation:
                 qua[self.ratings['movieId'][n]] += 1  # и увеличиваем количество оценок у фильма на 1
 
         for i in range(len(sco)):  # идём по оценкам
-            if (qua[i]) != 0:  # если фильм смотрел кто-то из ближайших людей
-                sco[i][0] = sco[i][0] / qua[i]  # считаем среднюю оценку фильма         ! sco[i][] != int??? !
+            if (qua[i]) != 0:  # если фильм смотрел кто-то из ближайших
+                sco[i][0] = sco[i][0] / qua[i]  # считаем среднюю оценку фильма
         sco = sorted(sco, key=lambda x: x[0], reverse=True)  # сортируем фильмы по средней оценке
         ans = []
         for i in range(100):  # берём 100 фильмов с наивысшей оценкой
